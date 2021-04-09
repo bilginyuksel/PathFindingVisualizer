@@ -1,5 +1,4 @@
 import DjikstraPathFindingVisualizer from './djikstra';
-import './App.css';
 
 function App() {
   return (

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import {useState} from "react";
+import "./index.css";
 
 interface MatrixFieldProps {
   column: number;
@@ -17,16 +18,25 @@ export interface CellProps {
   initialColor: string;
 }
 
+// Currently just returning sample data.
+// In the future it can return cells information.
+function createArrayOfCells(count: number) {
+  const array = [];
+  for (let i = 0; i < count; i++) {
+    array.push(i);
+  }
+  return array;
+}
+
 export default function MatrixField(props: MatrixFieldProps) {
   const context: MatrixFieldContext = { mouseLeftClick: false };
 
-  const array = [0,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,1,1,1,1,1,1,1,1,1,,11,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,1,1,1,1,1,1,1,1,1,,11,1,1,1,1,1,1,,11,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+  const array = createArrayOfCells(2000);
 
-  return (<div
-    onMouseDown={() => context.mouseLeftClick = true}
+  return (<div onMouseDown={() => context.mouseLeftClick = true}
     onMouseUp={() => context.mouseLeftClick = false}>
 
-    {array.map(element => 
+    {array.map(element =>
       <Cell id={0} row={1} col={3} initialColor={'black'} context={context} />
     )}
 
@@ -44,14 +54,14 @@ function Cell(props: CellProps) {
   };
 
   const onMouseEnter = () => {
-    if(props.context.mouseLeftClick) {
+    if (props.context.mouseLeftClick) {
       onMouseDown();
     }
   };
 
   const onMouseUp = () => {
     setDoubleClickTracker(doubleClickTracker + 1);
-    if (doubleClickTracker == 2) {
+    if (doubleClickTracker === 2) {
       setColor('gray');
       setBackgroundColor('gray');
       setDoubleClickTracker(0);
@@ -59,8 +69,8 @@ function Cell(props: CellProps) {
   };
 
   return (
-    <div
-      style={{ height: 30, width: 30, display: "inline-flex", border: color + " solid 2px", backgroundColor: backgroundColor }}
+    <div className="cell"
+      style={{border: color + " solid 2px", backgroundColor: backgroundColor }}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseUp={onMouseUp}>
