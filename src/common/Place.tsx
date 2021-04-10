@@ -1,10 +1,9 @@
 import { useState } from "react";
+import MazeCell from "./model";
 import "./index.css";
 
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
-
-type CellInterceptor = () => void
 
 interface MatrixFieldProps {
   width: number;
@@ -15,55 +14,9 @@ interface MatrixFieldContext {
   mouseLeftClick: boolean;
 }
 
-
-class MazeCell {
-  readonly id: number;
-  readonly row: number;
-  readonly col: number;
-  private _color: string = 'white';
-  private _marked: boolean = false;
-  private _rigid: boolean = false;
-  private _interceptors: CellInterceptor[] = [];
-
-  constructor(id: number, row: number, col: number) {
-    this.id = id;
-    this.row = row;
-    this.col = col;
-  }
-
-  addInterceptor(callback: () => void) {
-    this._interceptors.push(callback);
-  }
-
-  private runInterceptors() {
-    this._interceptors.forEach(func => func());
-  }
-
-  set marked(marked: boolean) {
-    this._marked = marked;
-    this.color = 'purple';
-  }
-
-  set color(color: string) {
-    this._color = color;
-    this.runInterceptors();
-  }
-
-  set rigid(rigid: boolean) {
-    this._rigid = rigid;
-  }
-
-  get color(): string {
-    return this._color;
-  }
-
-  get marked() {
-    return this._marked;
-  }
-
-  get rigid() {
-    return this._rigid;
-  }
+interface CellProps {
+  cell: MazeCell;
+  context: MatrixFieldContext;
 }
 
 function createArrayOfCells(width: number, height: number): MazeCell[] {
@@ -105,11 +58,6 @@ export default function MatrixField(props: MatrixFieldProps) {
     )}
 
   </div>);
-}
-
-interface CellProps {
-  cell: MazeCell;
-  context: MatrixFieldContext;
 }
 
 function Cell(props: CellProps) {
