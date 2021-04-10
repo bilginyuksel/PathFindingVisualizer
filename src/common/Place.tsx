@@ -1,13 +1,16 @@
 import { useState } from "react";
-import MazeCell from "./model";
+import {MazeCell, Observer, PathFinderAlgorithm } from "./model";
 import "./index.css";
 
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
 
+
 interface MatrixFieldProps {
   width: number;
   height: number;
+  observer: Observer;
+  algorithm: PathFinderAlgorithm;
 }
 
 interface MatrixFieldContext {
@@ -22,10 +25,10 @@ interface CellProps {
 function createArrayOfCells(width: number, height: number): MazeCell[] {
   const totalCellCount = width * height / (CELL_HEIGHT * CELL_WIDTH);
 
-  const maxRows = width / CELL_WIDTH;
-  const maxCols = height / CELL_HEIGHT;
+  const maxRows = height / CELL_HEIGHT;
+  const maxCols = width / CELL_WIDTH;
 
-  console.log(`totalCellCount= ${totalCellCount}, maxRows= ${maxRows}, innerHeight= ${maxCols}`);
+  console.log(`totalCellCount= ${totalCellCount}, maxRows= ${maxRows}, maxCols= ${maxCols}`);
 
   const cells = [];
   for (let i = 0; i < totalCellCount; i++) {
@@ -43,6 +46,8 @@ export default function MatrixField(props: MatrixFieldProps) {
   const endCell = cells[828];
   startCell.color = 'black';
   endCell.color = 'black';
+
+  props.observer.register(() => props.algorithm(cells, startCell, endCell));
 
   return (<div className="maze-container"
     style={{ width: props.width, height: props.height }}

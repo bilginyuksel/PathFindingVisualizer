@@ -1,6 +1,7 @@
 type CellInterceptor = () => void
+export type PathFinderAlgorithm = (cells: MazeCell[], startCell: MazeCell, endCell: MazeCell) => void
 
-export default class MazeCell {
+export class MazeCell {
   readonly id: number;
   readonly row: number;
   readonly col: number;
@@ -47,5 +48,21 @@ export default class MazeCell {
 
   get rigid() {
     return this._rigid;
+  }
+}
+
+export class Observer {
+  _callback : () => void;
+
+  constructor() {
+    this._callback = () => {};
+  }
+  
+  register(callback: () => void) {
+    this._callback = callback; 
+  }
+
+  notifyAll() {
+    this._callback(); 
   }
 }
