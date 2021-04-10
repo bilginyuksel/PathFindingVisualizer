@@ -1,4 +1,4 @@
-import MatrixField from "../common/place";
+import MatrixField from "../common/Place";
 
 export default function DjikstraPathFindingVisualizer() {
   return (
