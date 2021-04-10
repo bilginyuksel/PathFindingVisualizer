@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./index.css";
 
-const INITIAL_BACKGROUND_COLOR: string = 'white';
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
 
@@ -21,10 +20,10 @@ class MazeCell {
   readonly id: number;
   readonly row: number;
   readonly col: number;
-  private interceptors: CellInterceptor[] = [];
   private _color: string = 'white';
   private _marked: boolean = false;
   private _rigid: boolean = false;
+  private _interceptors: CellInterceptor[] = [];
 
   constructor(id: number, row: number, col: number) {
     this.id = id;
@@ -33,11 +32,11 @@ class MazeCell {
   }
 
   addInterceptor(callback: () => void) {
-    this.interceptors.push(callback);
+    this._interceptors.push(callback);
   }
 
   private runInterceptors() {
-    this.interceptors.forEach(func => func());
+    this._interceptors.forEach(func => func());
   }
 
   set marked(marked: boolean) {
@@ -84,7 +83,7 @@ function createArrayOfCells(width: number, height: number): MazeCell[] {
 }
 
 export default function MatrixField(props: MatrixFieldProps) {
-  const context: MatrixFieldContext = {mouseLeftClick: false};
+  const context: MatrixFieldContext = { mouseLeftClick: false };
 
   const cells = createArrayOfCells(props.width, props.height);
   const startCell = cells[100];
@@ -96,8 +95,8 @@ export default function MatrixField(props: MatrixFieldProps) {
     style={{ width: props.width, height: props.height }}
     onMouseDown={() => context.mouseLeftClick = !context.mouseLeftClick} >
 
-      <input onChange={(e) => cells[parseInt(e.target.value)].color = 'purple'}/>
-      <hr></hr>
+    <input onChange={(e) => cells[parseInt(e.target.value)].color = 'purple'} />
+    <hr></hr>
 
     {cells.map(cell =>
       <Cell key={`cell-${cell.id}`}
