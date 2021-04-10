@@ -102,7 +102,6 @@ export default function MatrixField(props: MatrixFieldProps) {
     {cells.map(cell =>
       <Cell key={`cell-${cell.id}`}
         cell={cell}
-        initialBackgroundColor={INITIAL_BACKGROUND_COLOR}
         context={context} />
     )}
 
@@ -111,7 +110,6 @@ export default function MatrixField(props: MatrixFieldProps) {
 
 interface CellProps {
   cell: MazeCell;
-  initialBackgroundColor: string;
   context: MatrixFieldContext;
 }
 
