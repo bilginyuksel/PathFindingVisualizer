@@ -2,94 +2,142 @@ import { useState } from "react";
 import "./index.css";
 
 const INITIAL_BACKGROUND_COLOR: string = 'white';
-const CELL_ROW_WIDTH = 30;
-const CELL_COL_WIDTH = 30;
+const CELL_WIDTH = 20;
+const CELL_HEIGHT = 20;
+
+type CellInterceptor = () => void
 
 interface MatrixFieldProps {
-  column: number;
-  row: number;
+  width: number;
+  height: number;
 }
 
 interface MatrixFieldContext {
   mouseLeftClick: boolean;
 }
 
-export interface CellProps {
-  id: number;
-  row: number;
-  col: number;
-  context: MatrixFieldContext;
-  initialBackgroundColor: string;
+
+class MazeCell {
+  readonly id: number;
+  readonly row: number;
+  readonly col: number;
+  private interceptors: CellInterceptor[] = [];
+  private _color: string = 'white';
+  private _marked: boolean = false;
+  private _rigid: boolean = false;
+
+  constructor(id: number, row: number, col: number) {
+    this.id = id;
+    this.row = row;
+    this.col = col;
+  }
+
+  addInterceptor(callback: () => void) {
+    this.interceptors.push(callback);
+  }
+
+  private runInterceptors() {
+    this.interceptors.forEach(func => func());
+  }
+
+  set marked(marked: boolean) {
+    this._marked = marked;
+    this.color = 'purple';
+  }
+
+  set color(color: string) {
+    this._color = color;
+    this.runInterceptors();
+  }
+
+  set rigid(rigid: boolean) {
+    this._rigid = rigid;
+  }
+
+  get color(): string {
+    return this._color;
+  }
+
+  get marked() {
+    return this._marked;
+  }
+
+  get rigid() {
+    return this._rigid;
+  }
 }
 
-// Currently just returning sample data.
-// In the future it can return cells information.
-function createArrayOfCells(innerWidth: number, outerWidth: number, activeMazeFieldPercentage: number) {
-  const totalScreenSize = innerWidth * outerWidth;
-  console.log(`innerWidth= ${innerWidth}, outerWidth= ${outerWidth}`)
+function createArrayOfCells(width: number, height: number): MazeCell[] {
+  const totalCellCount = width * height / (CELL_HEIGHT * CELL_WIDTH);
+
+  const maxRows = width / CELL_WIDTH;
+  const maxCols = height / CELL_HEIGHT;
+
+  console.log(`totalCellCount= ${totalCellCount}, maxRows= ${maxRows}, innerHeight= ${maxCols}`);
+
   const cells = [];
-  for (let i = 0; i < activeMazeFieldPercentage; i++) {
-    cells.push({
-      id: i,
-      row: i,
-      col: i,
-      initialBackgroundColor: INITIAL_BACKGROUND_COLOR
-    });
+  for (let i = 0; i < totalCellCount; i++) {
+    cells.push(new MazeCell(i, Math.floor(i / maxRows), i % maxCols));
   }
+
   return cells;
 }
 
 export default function MatrixField(props: MatrixFieldProps) {
-  const context: MatrixFieldContext = { mouseLeftClick: false };
+  const context: MatrixFieldContext = {mouseLeftClick: false};
 
-  const innerWidth = window.innerWidth;
-  const outerWidth = window.outerWidth;
-
-  const cells = createArrayOfCells(innerWidth, outerWidth, 80);
+  const cells = createArrayOfCells(props.width, props.height);
+  const startCell = cells[100];
+  const endCell = cells[828];
+  startCell.color = 'black';
+  endCell.color = 'black';
 
   return (<div className="maze-container"
-    onMouseDown={() => context.mouseLeftClick = true}
-    onMouseUp={() => context.mouseLeftClick = false}>
+    style={{ width: props.width, height: props.height }}
+    onMouseDown={() => context.mouseLeftClick = !context.mouseLeftClick} >
+
+      <input onChange={(e) => cells[parseInt(e.target.value)].color = 'purple'}/>
+      <hr></hr>
 
     {cells.map(cell =>
-      <Cell id={cell.id}
-        key={`cell-${cell.id}`}
-        row={cell.row}
-        col={cell.col}
-        initialBackgroundColor={cell.initialBackgroundColor}
+      <Cell key={`cell-${cell.id}`}
+        cell={cell}
+        initialBackgroundColor={INITIAL_BACKGROUND_COLOR}
         context={context} />
     )}
 
   </div>);
 }
 
-function Cell(props: CellProps) {
-  const [backgroundColor, setBackgroundColor] = useState(props.initialBackgroundColor);
-  const [doubleClickTracker, setDoubleClickTracker] = useState(0);
+interface CellProps {
+  cell: MazeCell;
+  initialBackgroundColor: string;
+  context: MatrixFieldContext;
+}
 
-  const onMouseDown = () => {
-    setBackgroundColor('green');
-  };
+function Cell(props: CellProps) {
+  const [flag, updateState] = useState(false);
+
+  props.cell.addInterceptor(() => updateState(!flag));
 
   const onMouseEnter = () => {
-    if (props.context.mouseLeftClick) {
-      onMouseDown();
-    }
+    if (!props.context.mouseLeftClick) return;
+    makeRigid();
   };
 
-  const onMouseUp = () => {
-    setDoubleClickTracker(doubleClickTracker + 1);
-    if (doubleClickTracker === 2) {
-      setBackgroundColor('white');
-      setDoubleClickTracker(0);
-    }
+  const onMouseDown = () => makeRigid();
+
+  const makeRigid = () => {
+    props.cell.color = 'green';
+    props.cell.rigid = true;
+    updateState(!flag); // ignored statement
+    console.log(props.cell);
   };
 
   return (
     <div className="cell"
-      style={{ backgroundColor: backgroundColor }}
+      style={{ backgroundColor: props.cell.color }}
       onMouseDown={onMouseDown}
-      onMouseEnter={onMouseEnter}
-      onMouseUp={onMouseUp}>
+      onMouseEnter={onMouseEnter} >
     </div>);
 }
