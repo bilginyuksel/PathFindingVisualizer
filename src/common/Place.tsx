@@ -86,6 +86,20 @@ function Cell(props: CellProps) {
 
   const onMouseDown = () => makeRigid();
 
+  const getClassName = () => {
+    if(props.cell.color === "white") {
+      return "cell-empty";
+    } else if(props.cell.color === "red") {
+      return "cell-path";
+    } else if(props.cell.color === "purple") {
+      return "cell-visited";
+    } else if(props.cell.color === "green") {
+      return "cell-wall";
+    } else if(props.cell.color === "black") {
+      return "cell-special";
+    }
+  }
+
   const makeRigid = () => {
     props.cell.color = 'green';
     props.cell.rigid = true;
@@ -93,8 +107,7 @@ function Cell(props: CellProps) {
   };
 
   return (
-    <div className="cell"
-      style={{ backgroundColor: props.cell.color }}
+    <div className={`cell ${getClassName()}`}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter} >
     </div>);

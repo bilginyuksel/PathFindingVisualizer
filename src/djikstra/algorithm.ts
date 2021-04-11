@@ -85,7 +85,6 @@ class MazePathFinder {
     if (matrix[row][col] === END) {
       console.log("Found!", path);
       this.drawTheShortestPath(path);
-      this.cells[currentId].color = "red";
       this._endGame = true;
       return;
     }
@@ -94,7 +93,7 @@ class MazePathFinder {
       console.log(`undefined, row= ${row}, col= ${col}`);
       return;
     }
-    this.cells[currentId].color = 'purple';
+    this.cells[currentId].marked = true;
     await this.sleep(10);
     path += `${row}-${col},`;
     // console.log(`row= ${row}, col= ${col}`);
