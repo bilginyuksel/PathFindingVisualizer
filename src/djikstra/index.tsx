@@ -13,6 +13,6 @@ export default function DjikstraPathFindingVisualizer() {
       <MatrixField observer={observer}
         algorithm={DjikstraAlgorithm}
         width={1500}
-        height={500} />
+        height={544} />
     </div>);
 }

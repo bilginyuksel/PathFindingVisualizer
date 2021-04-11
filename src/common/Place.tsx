@@ -25,14 +25,24 @@ interface CellProps {
 function createArrayOfCells(width: number, height: number): MazeCell[] {
   const totalCellCount = width * height / (CELL_HEIGHT * CELL_WIDTH);
 
-  const maxRows = height / CELL_HEIGHT;
-  const maxCols = width / CELL_WIDTH;
+  // const maxRows = height / CELL_HEIGHT;
+  const maxRows = 30;
+  // const maxCols = width / CELL_WIDTH;
+  const maxCols = 67;
 
   console.log(`totalCellCount= ${totalCellCount}, maxRows= ${maxRows}, maxCols= ${maxCols}`);
+  let currentRow = 0;
+  let currentCol = 0;
 
   const cells = [];
-  for (let i = 0; i < totalCellCount; i++) {
-    cells.push(new MazeCell(i, Math.floor(i / maxRows), i % maxCols));
+  for (let i = 0; i <= 2039; i++) {
+    cells.push(new MazeCell(i, currentRow, currentCol));
+    if(currentCol === maxCols) {
+      currentCol = 0;
+      currentRow++;
+    } else {
+      currentCol++;
+    }
   }
 
   return cells;

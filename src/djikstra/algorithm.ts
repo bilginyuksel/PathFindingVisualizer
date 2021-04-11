@@ -6,34 +6,6 @@ const END = -1;
 const EMPTY = 0;
 const VISITED = 5;
 
-function convertToMatrix(cells: MazeCell[], startPoint: MazeCell, endPoint: MazeCell): number[][] {
-  const matrix: number[][] = [];
-
-  const lastCell = cells[cells.length - 1];
-  const maxRow = lastCell.row;
-  const maxCol = lastCell.col;
-  let currentId = 0;
-
-  for (let i = 0; i <= maxRow; i++) {
-    let temp: number[] = [];
-    for (let j = 0; j <= maxCol; j++) {
-      const isCurrentCellWall = cells[currentId++].rigid;
-      temp.push(isCurrentCellWall ? WALL : EMPTY);
-    }
-    matrix.push(temp);
-  }
-
-  const startRow = startPoint.row;
-  const startCol = startPoint.col;
-  const endRow = endPoint.row;
-  const endCol = endPoint.col;
-
-  matrix[startRow][startCol] = START;
-  matrix[endRow][endCol] = END;
-
-  return matrix;
-}
-
 export default function DjikstraAlgorithm(cells: MazeCell[], startPoint: MazeCell, endPoint: MazeCell) {
   // const matrix: number[][] = convertToMatrix(cells, startPoint, endPoint);
 
@@ -49,6 +21,7 @@ class MazePathFinder {
 
   _maxRow: number = -1;
   _maxCol: number = -1;
+  _endGame = false;
 
   constructor(cells: MazeCell[], startPoint: MazeCell, endPoint: MazeCell) {
     this.cells = cells;
@@ -68,24 +41,24 @@ class MazePathFinder {
 
     let currentId = 0;
 
-    for (let i = 0; i < maxRow; i++) {
+    for (let i = 0; i <= maxRow; i++) {
       let temp: number[] = [];
-      for (let j = 0; j < maxCol; j++) {
+      for (let j = 0; j <= maxCol; j++) {
         console.log(`row= ${i}, col= ${j}, id= ${currentId}`);
-        this.map.set({"row": i,"col": j}, currentId);
+        this.map.set(`${i}-${j}`, currentId);
         const isCurrentCellWall = this.cells[currentId++].rigid;
         temp.push(isCurrentCellWall ? WALL : EMPTY);
       }
       matrix.push(temp);
     }
 
-    const startRow = this.startPoint.row;
-    const startCol = this.startPoint.col;
-    const endRow = this.endPoint.row;
-    const endCol = this.endPoint.col;
+    const sr = this.startPoint.row;
+    const sc = this.startPoint.col;
+    const er = this.endPoint.row;
+    const ec = this.endPoint.col;
 
-    matrix[startRow][startCol] = START;
-    matrix[endRow][endCol] = END;
+    matrix[sr][sc] = START;
+    matrix[er][ec] = END;
 
     console.log(this.map);
     return matrix;
@@ -103,20 +76,29 @@ class MazePathFinder {
     return !this._isWall(matrix, row, col) && !this._isVisited(matrix, row, col);
   }
 
-  _findEndPointInMazeRecursively(matrix: number[][], row: number, col: number) {
-    const currentId = this.map.get({"row": row, "col": col});
+  sleep(speed: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, speed));
+  }
+
+  async _findEndPointInMazeRecursively(matrix: number[][], row: number, col: number) {
+    if(this._endGame) return;
+
+    console.log("Map value= ", {"row": row, "col": col});
+    const currentId = this.map.get(`${row}-${col}`);
+    console.log(`currentId=${currentId}`);
     if (matrix[row][col] === END) {
       console.log("Found!");
       this.cells[currentId].color = "red";
+      this._endGame = true;
       return;
     }
     matrix[row][col] = VISITED;
     if(currentId === undefined) {
-      console.log(`row= ${row}, col= ${col}`);
-      console.log("undefined");
+      console.log(`undefined, row= ${row}, col= ${col}`);
       return;
     }
     this.cells[currentId].color = 'purple';
+    await this.sleep(10);
     console.log(`row= ${row}, col= ${col}`);
 
     if (row + 1 <= this._maxRow && this._isNotWallNotVisited(matrix, row + 1, col)) {
