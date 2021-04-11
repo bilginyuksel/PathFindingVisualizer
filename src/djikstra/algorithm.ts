@@ -7,8 +7,6 @@ const EMPTY = 0;
 const VISITED = 5;
 
 export default function DjikstraAlgorithm(cells: MazeCell[], startPoint: MazeCell, endPoint: MazeCell) {
-  // const matrix: number[][] = convertToMatrix(cells, startPoint, endPoint);
-
   const finder = new MazePathFinder(cells, startPoint, endPoint);
   finder.findEndPointInMazeRecursively();
 }
@@ -44,7 +42,6 @@ class MazePathFinder {
     for (let i = 0; i <= maxRow; i++) {
       let temp: number[] = [];
       for (let j = 0; j <= maxCol; j++) {
-        console.log(`row= ${i}, col= ${j}, id= ${currentId}`);
         this.map.set(`${i}-${j}`, currentId);
         const isCurrentCellWall = this.cells[currentId++].rigid;
         temp.push(isCurrentCellWall ? WALL : EMPTY);
@@ -60,7 +57,6 @@ class MazePathFinder {
     matrix[sr][sc] = START;
     matrix[er][ec] = END;
 
-    console.log(this.map);
     return matrix;
   }
 
@@ -80,14 +76,15 @@ class MazePathFinder {
     return new Promise(resolve => setTimeout(resolve, speed));
   }
 
-  async _findEndPointInMazeRecursively(matrix: number[][], row: number, col: number) {
+  async _findEndPointInMazeRecursively(matrix: number[][], row: number, col: number, path: string) {
     if(this._endGame) return;
 
-    console.log("Map value= ", {"row": row, "col": col});
+    // console.log("Map value= ", {"row": row, "col": col});
     const currentId = this.map.get(`${row}-${col}`);
-    console.log(`currentId=${currentId}`);
+    // console.log(`currentId=${currentId}`);
     if (matrix[row][col] === END) {
-      console.log("Found!");
+      console.log("Found!", path);
+      this.drawTheShortestPath(path);
       this.cells[currentId].color = "red";
       this._endGame = true;
       return;
@@ -99,22 +96,33 @@ class MazePathFinder {
     }
     this.cells[currentId].color = 'purple';
     await this.sleep(10);
-    console.log(`row= ${row}, col= ${col}`);
+    path += `${row}-${col},`;
+    // console.log(`row= ${row}, col= ${col}`);
 
     if (row + 1 <= this._maxRow && this._isNotWallNotVisited(matrix, row + 1, col)) {
-      this._findEndPointInMazeRecursively(matrix, row + 1, col);
+      this._findEndPointInMazeRecursively(matrix, row + 1, col, path);
     }
 
     if (col + 1 <= this._maxCol && this._isNotWallNotVisited(matrix, row, col + 1)) {
-      this._findEndPointInMazeRecursively(matrix, row, col + 1);
+      this._findEndPointInMazeRecursively(matrix, row, col + 1, path);
     }
 
     if (row - 1 >= 0 && this._isNotWallNotVisited(matrix, row - 1, col)) {
-      this._findEndPointInMazeRecursively(matrix, row - 1, col);
+      this._findEndPointInMazeRecursively(matrix, row - 1, col, path);
     }
 
     if (col - 1 >= 0 && this._isNotWallNotVisited(matrix, row, col - 1)) {
-      this._findEndPointInMazeRecursively(matrix, row, col - 1);
+      this._findEndPointInMazeRecursively(matrix, row, col - 1, path);
+    }
+  }
+
+  async drawTheShortestPath(path: string) {
+    const cells = path.split(",");
+    cells.pop(); // last element is empty because of the , at the end
+    for(let i=0; i<cells.length; i++) {
+      const id = this.map.get(cells[i]);
+      this.cells[id].color = "red";
+      await this.sleep(30);
     }
   }
 
@@ -122,10 +130,9 @@ class MazePathFinder {
     const matrix = this._createMatrixFromCells();
     const startRow = this.startPoint.row;
     const startCol = this.startPoint.col;
-    console.log(matrix);
 
     console.log(`startRow= ${startRow}, startCol= ${startCol}`);
-    this._findEndPointInMazeRecursively(matrix, startRow, startCol);
+    this._findEndPointInMazeRecursively(matrix, startRow, startCol, "");
   }
 }
 

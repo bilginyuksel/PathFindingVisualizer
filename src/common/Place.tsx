@@ -5,7 +5,6 @@ import "./index.css";
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
 
-
 interface MatrixFieldProps {
   width: number;
   height: number;
@@ -91,7 +90,6 @@ function Cell(props: CellProps) {
     props.cell.color = 'green';
     props.cell.rigid = true;
     updateState(!flag); // ignored statement
-    console.log(props.cell);
   };
 
   return (

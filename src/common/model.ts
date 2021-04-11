@@ -30,6 +30,10 @@ export class MazeCell {
   }
 
   set color(color: string) {
+    if(this._color === "black") {
+      console.warn("Color couldn't change because the cell's current color is black. Which means this cell is marked as a start or end point.");
+      return;
+    } 
     this._color = color;
     this.runInterceptors();
   }
